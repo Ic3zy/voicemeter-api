@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voicemeeter Gain Control</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #395063;
+            font-family: Arial, sans-serif;
+            overflow: hidden; 
+        }
+
+        .slider-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            max-width: 100%;
+            width: 90%;
+            flex-wrap: nowrap;
+            overflow-x: hidden; 
+        }
+
+        #gainSlider, #auxSlider, #input3Slider {
+            transform: rotate(270deg);
+            width: 400px;
+            height: 50px;
+        }
+
+        button {
+            margin-top: 10px;
+            background-color: #395063;
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .slider-container {
+                gap: 5px;
+                align-items: center;
+                flex-direction: row;
+            }
+
+            #gainSlider, #auxSlider, #input3Slider {
+                width: 120px; 
+                height: 150px; 
+            }
+
+            h2 {
+                font-size: 18px;
+            }
+
+            p {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 16px;
+            }
+
+            p {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slider-container">
+        <div>
+            <h2>Input Gain</h2>
+            <input type="range" id="input3Slider" min="-60" max="12" step="0.1" value="0">
+            <p>Input 3 Gain: <span id="input3Value">0</span> dB</p>
+            <button id="resetInput3">Sıfırla</button>
+        </div>
+
+        <div>
+            <h2>Aux Gain</h2>
+            <input type="range" id="auxSlider" min="-60" max="12" step="0.1" value="0">
+            <p>Aux Gain: <span id="auxValue">0</span> dB</p>
+            <button id="resetAux">Sıfırla</button>
+        </div>
+        
+        <div>
+            <h2>Virtual Gain</h2>
+            <input type="range" id="gainSlider" min="-60" max="12" step="0.1" value="0">
+            <p>Gain: <span id="gainValue">0</span> dB</p>
+            <button id="resetGain">Sıfırla</button>
+        </div>
+    </div>
+
+    <script>
+        const gainSlider = document.getElementById('gainSlider');
+        const auxSlider = document.getElementById('auxSlider');
+        const input3Slider = document.getElementById('input3Slider');
+        const gainValue = document.getElementById('gainValue');
+        const auxValue = document.getElementById('auxValue');
+        const input3Value = document.getElementById('input3Value');
+
+        const resetAux = document.getElementById('resetAux');
+        const resetGain = document.getElementById('resetGain');
+        const resetInput3 = document.getElementById('resetInput3');
+
+        const updateGain = async () => {
+            await fetch('/set_gain', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    gain: gainSlider.value,
+                    auxGain: auxSlider.value,
+                    input3Gain: input3Slider.value
+                }),
+            });
+        };
+
+        gainSlider.addEventListener('input', () => {
+            gainValue.textContent = gainSlider.value;
+            updateGain();
+        });
+
+        auxSlider.addEventListener('input', () => {
+            auxValue.textContent = auxSlider.value;
+            updateGain();
+        });
+
+        input3Slider.addEventListener('input', () => {
+            input3Value.textContent = input3Slider.value;
+            updateGain();
+        });
+
+        resetAux.addEventListener('click', () => {
+            auxSlider.value = 0;
+            auxValue.textContent = 0;
+            updateGain();
+        });
+
+        resetGain.addEventListener('click', () => {
+            gainSlider.value = 0;
+            gainValue.textContent = 0;
+            updateGain();
+        });
+
+        resetInput3.addEventListener('click', () => {
+            input3Slider.value = 0;
+            input3Value.textContent = 0;
+            updateGain();
+        });
+    </script>
+</body>
+</html>
